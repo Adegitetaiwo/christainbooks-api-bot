@@ -4,6 +4,7 @@ from django.shortcuts import render
 from rest_framework.response import Response
 from rest_framework.decorators import api_view
 from rest_framework import serializers, status
+from rest_framework.exceptions import ValidationError
 from django.db.models import Q
 
 from Books_Archive.models import Author, Books
@@ -25,9 +26,14 @@ def books(request):
             ).distinct()
 
         serializer = BookSerializer(search_list, many=True)
-        return Response({
-            'queryset': serializer.data
-        }, status=status.HTTP_200_OK)
+        if not serializer.data:
+            return Response({
+                'queryset': serializer.data
+            }, status=status.HTTP_204_NO_CONTENT)
+        else:
+            return Response({
+                'queryset': serializer.data
+            }, status=status.HTTP_200_OK)
     except Exception as e:
         pass
 
