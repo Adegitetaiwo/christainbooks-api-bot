@@ -18,10 +18,11 @@ class Books(models.Model):
     volume = models.CharField(max_length=250, blank=True)
 
     verified = models.BooleanField(default=True)
+    uploaded = models.DateField(auto_now=False, auto_now_add=True)
+    updated = models.DateField(auto_now=True, auto_now_add=False)
 
     def __str__(self):
         return f'{self.title} by {self.author}'
-    
 
     class Meta:
         verbose_name_plural = 'Books Archive'

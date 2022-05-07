@@ -9,6 +9,8 @@ from django.db.models import Q
 
 from Books_Archive.models import Author, Books
 from .serializers import BookSerializer
+
+from itertools import chain
 # Create your views here.
 
 @api_view(['GET'])
@@ -18,14 +20,24 @@ def books(request):
     query_data_copy = query_data.copy()
     #check if user searched by title or if the title was passed
     try:
-        if query_data['title'] != "":
-            search_list = books_list.filter(
-                Q(title__icontains=query_data_copy['title'])
-                # Q(category__icontains=query_search) |
-                # Q(body__icontains=query_search)
-            ).distinct()
+        query_list = query_data['title'].split(',')
 
-        serializer = BookSerializer(search_list, many=True)
+        search_query_list = []
+        for query in query_list:
+            if query_data['title'] is not None:
+                search_list = books_list.filter(
+                    Q(title__icontains=query)
+                    # Q(category__icontains=query_search) |
+                    # Q(body__icontains=query_search)
+                ).distinct()
+            
+            if len(search_query_list) > 0:
+                search_query_list[0] = (search_query_list[0] | search_list)
+
+            search_query_list.append(search_list)
+
+        # print(search_query_list[0])
+        serializer = BookSerializer(search_query_list[0], many=True)
         if not serializer.data:
             return Response({
                 'queryset': serializer.data
@@ -35,6 +47,7 @@ def books(request):
                 'queryset': serializer.data
             }, status=status.HTTP_200_OK)
     except Exception as e:
+        print('Exception: ', e)
         pass
 
     try:

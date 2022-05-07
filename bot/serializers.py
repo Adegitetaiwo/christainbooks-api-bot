@@ -4,7 +4,7 @@ from Books_Archive.models import Books
 class BookSerializer(serializers.ModelSerializer):
     author = serializers.StringRelatedField()
     file_url = serializers.SerializerMethodField()
-    file = serializers.ImageField(write_only=False)  # set write_only to True if you want to hide file field in query result.
+    file = serializers.ImageField(write_only=True)  # set write_only to True if you want to hide file field in query result.
 
     class Meta:
         model = Books
